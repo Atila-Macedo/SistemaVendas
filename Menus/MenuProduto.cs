@@ -29,7 +29,7 @@ public static class MenuProduto
                     Exibir();
                     break;
                 case 0:
-                    Console.WriteLine("Voltando ao Menu Principal...");
+                    MenuPrincipal.Exibir();
                     break;
                 default:
                     Console.WriteLine("Opção inválida. Tente novamente.");

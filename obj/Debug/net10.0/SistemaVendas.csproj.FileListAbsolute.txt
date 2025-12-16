@@ -118,3 +118,4 @@ C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\refint\SistemaV
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.pdb
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.genruntimeconfig.cache
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\ref\SistemaVendas.dll
+C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.sourcelink.json
