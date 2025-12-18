@@ -9,10 +9,10 @@ public class ProdutoServico : IProdutoServico
 {
     private readonly IProdutoRepositorio _produtoRepositorio;
 
-    public ProdutoServico()
+    public ProdutoServico(IProdutoRepositorio repositorio)
     {
         // O serviço usa o repositório para salvar os dados
-        _produtoRepositorio = new ProdutoRepositorio();
+        _produtoRepositorio = repositorio;
     }
 
     public void CriarProduto(string nome, decimal preco, int estoque)
@@ -33,7 +33,7 @@ public class ProdutoServico : IProdutoServico
 
     public List<Produto> ListarProdutos()
     {
-        return _produtoRepositorio.ListarTodos();
+        return _produtoRepositorio.Listar();
     }
 
     public void DeletarProduto(int id)

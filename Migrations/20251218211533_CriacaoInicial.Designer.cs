@@ -11,7 +11,7 @@ using SistemaVendas.BancoConfig;
 namespace SistemaVendas.Migrations
 {
     [DbContext(typeof(SistemaVendasContext))]
-    [Migration("20251216130205_CriacaoInicial")]
+    [Migration("20251218211533_CriacaoInicial")]
     partial class CriacaoInicial
     {
         /// <inheritdoc />

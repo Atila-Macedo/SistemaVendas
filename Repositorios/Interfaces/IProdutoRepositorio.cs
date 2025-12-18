@@ -9,4 +9,5 @@ public interface IProdutoRepositorio
     Produto? ObterPorId(int id);
     void Atualizar(Produto produto);
     void Remover(int id);
+    List<Produto> Listar();
 }

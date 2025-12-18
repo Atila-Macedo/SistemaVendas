@@ -112,10 +112,10 @@ C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.G
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.AssemblyInfoInputs.cache
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.AssemblyInfo.cs
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.csproj.CoreCompileInputs.cache
+C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.sourcelink.json
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaV.B4BA3626.Up2Date
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.dll
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\refint\SistemaVendas.dll
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.pdb
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.genruntimeconfig.cache
 C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\ref\SistemaVendas.dll
-C:\Users\escri\Desktop\WorkSpace\SistemaVendas\obj\Debug\net10.0\SistemaVendas.sourcelink.json

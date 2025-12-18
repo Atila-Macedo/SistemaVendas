@@ -8,6 +8,11 @@ public class ProdutoRepositorio : IProdutoRepositorio
 {
     private readonly SistemaVendasContext _context;
 
+    public ProdutoRepositorio(SistemaVendasContext context)
+    {
+        _context = context;
+    }
+
     public ProdutoRepositorio()
     {
         _context = new SistemaVendasContext();
@@ -45,5 +50,10 @@ public class ProdutoRepositorio : IProdutoRepositorio
             produto.Deletado = true;
             _context.SaveChanges();
         }
+    }
+
+    public List<Produto> Listar()
+    {
+        throw new NotImplementedException();
     }
 }

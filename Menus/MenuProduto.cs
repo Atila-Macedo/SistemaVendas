@@ -1,12 +1,13 @@
 using SistemaVendas.Servicos;
 using SistemaVendas.Servicos.Interfaces;
 using SistemaVendas.Entidades;
+using SistemaVendas.Repositorios;
 
 namespace SistemaVendas.Menus;
 public static class MenuProduto
 {
  // Criamos uma instância do serviço para gerenciar os produtos
-    private static readonly IProdutoServico _produtoServico = new ProdutoServico();
+    private static readonly IProdutoServico _produtoServico = new ProdutoServico(new ProdutoRepositorio());
     public static void Exibir()
     {
         int opcao;
@@ -99,12 +100,33 @@ public static class MenuProduto
     {
         Console.Clear();
         Console.WriteLine("--- Remover Produto ---");
-        Console.Write("Digite o ID do produto que deseja remover: ");
-        int id = int.Parse(Console.ReadLine() ?? "0");
 
-        _produtoServico.DeletarProduto(id);
-        
-        Console.WriteLine("\nOperação realizada! (Se o ID existia, o produto foi removido).");
+        var produtos = _produtoServico.ListarProdutos();
+        if (produtos.Count == 0)
+        {
+            Console.WriteLine("Nenhum produto cadastrado para remover.");
+            Console.WriteLine("\nPressione qualquer tecla para voltar...");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.WriteLine("Produtos Disponíveis:");
+        foreach (var p in produtos)
+        {
+            Console.WriteLine($"ID: {p.Id} | Nome: {p.Nome}");
+        }
+
+        Console.Write("Digite o ID do produto que deseja remover: ");
+        if (int.TryParse(Console.ReadLine(), out int id))
+        {
+            _produtoServico.DeletarProduto(id);
+            Console.WriteLine($"\nProduto com ID {id} removido com sucesso!");   
+        }
+        else
+        {
+            Console.WriteLine("\nID inválido! Operação cancelada.");
+        }
+    
         Console.WriteLine("\nPressione qualquer tecla para voltar...");
         Console.ReadKey();
     }
