@@ -1,36 +1,20 @@
-using SistemaVendas.Menus;
+using SistemaVendas.Configuracao;
 
 namespace SistemaVendas.Menus;
+
 public static class MenuPrincipal
 {
-    public static void Exibir()
+    public static void Exibir(Container container)
     {
-        int opcao;
-        do
-        {
+        string opcao;
+        do {
             Console.Clear();
-            Console.WriteLine("=== Menu Principal ===");
-            Console.WriteLine("1. Gerenciar Produtos");
-            Console.WriteLine("2. Gerenciar Pedidos");
-            Console.WriteLine("0. Sair");
-            Console.Write("Selecione uma opção: ");
-            opcao = int.Parse(Console.ReadLine() ?? "0");
+            Console.WriteLine("1. Produtos\n2. Pedidos\n0. Sair");
+            opcao = Console.ReadLine() ?? "0";
 
-            switch (opcao)
-            {
-                case 1:
-                    MenuProduto.Exibir();
-                    break;
-                case 2:
-                    MenuPedido.Exibir();
-                    break;
-                case 0:
-                    Console.WriteLine("Saindo do sistema...");
-                    break;
-                default:
-                    Console.WriteLine("Opção inválida. Tente novamente.");
-                    break;
-            }
-        } while (opcao != 0);
+            if (opcao == "1") MenuProduto.Exibir(container);
+            if (opcao == "2") MenuPedido.Exibir(container);
+
+        } while (opcao != "0");
     }
 }

@@ -1,3 +1,5 @@
 ﻿using SistemaVendas.Menus;
+using SistemaVendas.Configuracao;
 
-MenuPrincipal.Exibir();
+Container container = new Container();
+MenuPrincipal.Exibir(container);

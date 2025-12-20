@@ -1,66 +1,105 @@
 using SistemaVendas.Entidades;
-using SistemaVendas.Repositorios.Interfaces;
+using SistemaVendas.Exceptions;
 using SistemaVendas.Servicos.Interfaces;
+using SistemaVendas.Repositorios.Interfaces;
 
 namespace SistemaVendas.Servicos;
 
 public class PedidoServico : IPedidoServico
 {
-    private readonly IPedidoRepositorio _pedidoRepositorio;
-    private readonly IProdutoRepositorio _produtoRepositorio;
+    private readonly IPedidoRepositorio _pedidoRepo;
+    private readonly IProdutoServico _produtoServico;
 
-    // O "Gerente de Pedidos" contrata o "Almoxarife de Pedidos" E o de "Produtos"
-    public PedidoServico(IPedidoRepositorio pedidoRepo, IProdutoRepositorio produtoRepo)
+    public PedidoServico(IPedidoRepositorio pedidoRepo, IProdutoServico produtoServico)
     {
-        _pedidoRepositorio = pedidoRepo;
-        _produtoRepositorio = produtoRepo;
+        _pedidoRepo = pedidoRepo;
+        _produtoServico = produtoServico;
     }
 
-    public void CriarPedido(string nomeCliente, string endereco, string pagamento, List<ItemPedido> itens)
+    public void CriarPedido(string nomeCliente, string enderecoEntrega, string tipoPagamento, List<(int produtoId, int quantidade)> itens)
     {
-        // REGRA 1: Validações básicas
-        if (string.IsNullOrWhiteSpace(nomeCliente)) throw new Exception("Cliente é obrigatório.");
-        if (itens == null || !itens.Any()) throw new Exception("O pedido deve ter pelo menos um item.");
+        if (string.IsNullOrWhiteSpace(nomeCliente))
+            throw new NegocioException("Nome do cliente é obrigatório.");
 
-        decimal totalPedido = 0;
+        if (string.IsNullOrWhiteSpace(enderecoEntrega))
+            throw new NegocioException("Endereço de entrega é obrigatório.");
 
-        // REGRA 2: Validar estoque e calcular preços para cada item
-        foreach (var item in itens)
+        if (string.IsNullOrWhiteSpace(tipoPagamento))
+            throw new NegocioException("Tipo de pagamento é obrigatório.");
+
+        if (itens == null || !itens.Any())
+            throw new NegocioException("O pedido deve conter pelo menos um item.");
+
+        var pedido = new Pedido
         {
-            var produto = _produtoRepositorio.ObterPorId(item.ProdutoId);
-            
-            if (produto == null) throw new Exception($"Produto ID {item.ProdutoId} não encontrado.");
-
-            // Verificação de estoque (Regra essencial de negócio)
-            if (produto.Estoque < item.Quantidade)
-                throw new Exception($"Estoque insuficiente para {produto.Nome}. Disponível: {produto.Estoque}");
-
-            // Atualiza o preço do item com o preço atual do produto no banco
-            item.PrecoUnitario = produto.Preco;
-            totalPedido += item.PrecoUnitario * item.Quantidade;
-
-            // REGRA 3: Baixa no estoque (Abatemos o que foi vendido)
-            produto.Estoque -= item.Quantidade;
-            _produtoRepositorio.Atualizar(produto); 
-        }
-
-        // Criamos o objeto Pedido final
-        var novoPedido = new Pedido
-        {
-            NomeCliente = nomeCliente,
-            EnderecoEntrega = endereco,
-            TipoPagamento = pagamento,
-            SubTotal = totalPedido,
-            Entregue = false,
-            Itens = itens
+            NomeCliente = nomeCliente.Trim(),
+            EnderecoEntrega = enderecoEntrega.Trim(),
+            TipoPagamento = tipoPagamento.Trim(),
+            Entregue = false
         };
 
-        // PASSO FINAL: Mandamos o repositório salvar no banco
-        _pedidoRepositorio.Criar(novoPedido);
+        foreach (var (produtoId, quantidade) in itens)
+        {
+            var produto = _produtoServico.BuscarPorId(produtoId);
+            
+            if (produto == null)
+                throw new NegocioException($"Produto com ID {produtoId} não encontrado.");
+
+            if (quantidade <= 0)
+                throw new NegocioException("Quantidade deve ser maior que zero.");
+
+            _produtoServico.AtualizarEstoque(produtoId, quantidade);
+
+            var item = new ItemPedido
+            {
+                ProdutoId = produto.Id,
+                Quantidade = quantidade,
+                PrecoUnitario = produto.Preco
+            };
+
+            pedido.SubTotal += quantidade * produto.Preco;
+            pedido.Itens.Add(item);
+        }
+
+        _pedidoRepo.Criar(pedido);
     }
 
-    public List<Pedido> ListarPedidos()
+    public List<string> ListarPedidos()
     {
-        return _pedidoRepositorio.Listar();
+        return _pedidoRepo.Listar()
+            .Select(p =>
+                $"Pedido {p.Id} | Cliente: {p.NomeCliente} | Total: R$ {p.SubTotal:F2} | Entregue: {(p.Entregue ? "Sim" : "Não")}")
+            .ToList();
     }
+
+    public void MarcarComoEntregue(int pedidoId)
+    {
+        var pedido = _pedidoRepo.BuscarPorId(pedidoId);
+
+        if (pedido == null)
+            throw new NegocioException("Pedido não encontrado.");
+
+        if (pedido.Entregue)
+            throw new NegocioException("Pedido já foi entregue.");
+
+        _pedidoRepo.MarcarComoEntregue(pedido);
+    }
+    public void CancelarPedido(int id)
+{
+    // 1. Busca o pedido com os itens incluídos
+    var pedido = _pedidoRepo.BuscarPorId(id);
+    if (pedido == null || pedido.Deletado) 
+        throw new NegocioException("Pedido não encontrado ou já cancelado.");
+
+    // 2. Devolve os itens ao estoque
+    foreach (var item in pedido.Itens)
+    {
+        // Usamos o sinal negativo para o AtualizarEstoque somar (estoque - (-qtd) = estoque + qtd)
+        // Ou você pode criar um método "ReporEstoque" no ProdutoServico
+        _produtoServico.AtualizarEstoque(item.ProdutoId, -item.Quantidade);
+    }
+
+    // 3. Marca como cancelado no banco
+    _pedidoRepo.Cancelar(pedido);
+}
 }

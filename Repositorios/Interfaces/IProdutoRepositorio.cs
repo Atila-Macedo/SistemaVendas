@@ -4,10 +4,9 @@ namespace SistemaVendas.Repositorios.Interfaces;
 
 public interface IProdutoRepositorio
 {
-    void Adicionar(Produto produto);
-    List<Produto> ListarTodos();
-    Produto? ObterPorId(int id);
-    void Atualizar(Produto produto);
-    void Remover(int id);
+    void Criar(Produto produto);
     List<Produto> Listar();
+    Produto? BuscarPorId(int id);
+    void Deletar(Produto produto);
+    void Atualizar(Produto produto);
 }

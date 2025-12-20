@@ -12,4 +12,6 @@ public interface IPedidoRepositorio
     
     // Busca um pedido específico com seus itens incluídos
     Pedido? BuscarPorId(int id);
+    void MarcarComoEntregue(Pedido pedido);
+    
 }

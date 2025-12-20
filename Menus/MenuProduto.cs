@@ -1,132 +1,110 @@
-using SistemaVendas.Servicos;
-using SistemaVendas.Servicos.Interfaces;
-using SistemaVendas.Entidades;
-using SistemaVendas.Repositorios;
+using SistemaVendas.Configuracao;
 
 namespace SistemaVendas.Menus;
+
 public static class MenuProduto
 {
- // Criamos uma instância do serviço para gerenciar os produtos
-    private static readonly IProdutoServico _produtoServico = new ProdutoServico(new ProdutoRepositorio());
-    public static void Exibir()
+    public static void Exibir(Container container)
     {
-        int opcao;
+        string opcao;
         do
         {
             Console.Clear();
-            Console.WriteLine("=== Gerenciamento de Produtos ===");
-            Console.WriteLine("1. Cadastrar Novo Produto");
-            Console.WriteLine("2. Listar Todos os Produtos");
-            Console.WriteLine("3. Remover Produto (Soft Delete)");
-            Console.WriteLine("0. Voltar ao Menu Principal");
-            Console.Write("\nSelecione uma opção: ");
-            
-            if (!int.TryParse(Console.ReadLine(), out opcao)) opcao = -1;
+            Console.WriteLine("=== Menu Produtos ===");
+            Console.WriteLine("1. Cadastrar Produto");
+            Console.WriteLine("2. Listar Produtos");
+            Console.WriteLine("3. Deletar Produto");
+            Console.WriteLine("0. Voltar");
+            Console.Write("Opção: ");
+            opcao = Console.ReadLine() ?? "0";
 
             switch (opcao)
             {
-                case 1:
-                    Cadastrar();
+                case "1":
+                    Cadastrar(container);
                     break;
-                case 2:
-                    Listar();
+                case "2":
+                    Listar(container);
                     break;
-                case 3:
-                    Remover();
-                    break;
-                case 0:
-                    // Apenas sai do loop e volta para o MenuPrincipal
-                    break;
-                default:
-                    Console.WriteLine("Opção inválida! Pressione qualquer tecla para tentar novamente...");
-                    Console.ReadKey();
+                case "3": 
+                    Deletar(container);
                     break;
             }
-        } while (opcao != 0);
+        } while (opcao != "0");
     }
 
-    private static void Cadastrar()
+    private static void Cadastrar(Container container)
     {
-        Console.Clear();
-        Console.WriteLine("--- Cadastrar Produto ---");
-        
-        Console.Write("Nome do Produto: ");
+        Console.Write("Nome: ");
         string nome = Console.ReadLine() ?? "";
-
         Console.Write("Preço: ");
         decimal preco = decimal.Parse(Console.ReadLine() ?? "0");
-
-        Console.Write("Quantidade em Estoque: ");
+        Console.Write("Estoque: ");
         int estoque = int.Parse(Console.ReadLine() ?? "0");
 
-        try
-        {
-            _produtoServico.CriarProduto(nome, preco, estoque);
-            Console.WriteLine("\nProduto cadastrado com sucesso!");
+        try {
+            container.ProdutoServico.CriarProduto(nome, preco, estoque);
+            Console.WriteLine("Produto salvo!");
+        } catch (Exception ex) {
+            Console.WriteLine($"Erro: {ex.Message}");
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"\nErro ao cadastrar: {ex.Message}");
-        }
-        
-        Console.WriteLine("\nPressione qualquer tecla para voltar...");
         Console.ReadKey();
     }
 
-    private static void Listar()
+    private static void Listar(Container container)
     {
         Console.Clear();
-        Console.WriteLine("--- Lista de Produtos ---");
-        
-        var produtos = _produtoServico.ListarProdutos();
+        var produtos = container.ProdutoServico.ListarProdutos();
+        // Correção do erro CS1061: Como 'produtos' agora é uma lista de strings, 
+        // apenas imprimimos a string diretamente.
+        foreach (var p in produtos) {
+            Console.WriteLine(p); 
+        }
+        Console.ReadKey();
+    }
+    private static void Deletar(Container container)
+    {
+        Console.Clear();
+        Console.WriteLine("--- DELETAR PRODUTO ---");
+
+        // 1️⃣ LISTAR antes de pedir o ID
+        var produtos = container.ProdutoServico.ListarProdutos();
 
         if (produtos.Count == 0)
         {
-            Console.WriteLine("Nenhum produto cadastrado.");
+            Console.WriteLine("Não há produtos cadastrados.");
         }
         else
         {
+            Console.WriteLine("\nProdutos no Sistema:");
+            Console.WriteLine("-------------------------------------------");
             foreach (var p in produtos)
             {
-                Console.WriteLine($"ID: {p.Id} | Nome: {p.Nome} | Preço: {p.Preco:C2} | Estoque: {p.Estoque}");
+                Console.WriteLine(p); // Exibe a string formatada
+            }
+            Console.WriteLine("-------------------------------------------");
+
+            // 2️⃣ PEDIR O ID
+            Console.Write("\nDigite o ID do produto que deseja DELETAR: ");
+            if (int.TryParse(Console.ReadLine(), out int id))
+            {
+                try
+                {
+                    // 3️⃣ EXECUTAR AÇÃO
+                    container.ProdutoServico.DeletarProduto(id);
+                    Console.WriteLine("\n✅ Produto removido com sucesso!");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"\n❌ Erro: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("\nID inválido.");
             }
         }
 
-        Console.WriteLine("\nPressione qualquer tecla para voltar...");
-        Console.ReadKey();
-    }
-
-    private static void Remover()
-    {
-        Console.Clear();
-        Console.WriteLine("--- Remover Produto ---");
-
-        var produtos = _produtoServico.ListarProdutos();
-        if (produtos.Count == 0)
-        {
-            Console.WriteLine("Nenhum produto cadastrado para remover.");
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
-            return;
-        }
-
-        Console.WriteLine("Produtos Disponíveis:");
-        foreach (var p in produtos)
-        {
-            Console.WriteLine($"ID: {p.Id} | Nome: {p.Nome}");
-        }
-
-        Console.Write("Digite o ID do produto que deseja remover: ");
-        if (int.TryParse(Console.ReadLine(), out int id))
-        {
-            _produtoServico.DeletarProduto(id);
-            Console.WriteLine($"\nProduto com ID {id} removido com sucesso!");   
-        }
-        else
-        {
-            Console.WriteLine("\nID inválido! Operação cancelada.");
-        }
-    
         Console.WriteLine("\nPressione qualquer tecla para voltar...");
         Console.ReadKey();
     }
